@@ -1,0 +1,56 @@
+version: '3.7'
+
+services:
+  app: &app
+    # Name of the resulting image after build.
+    image: puzzles:latest
+    # The way we build image.
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Here we define dependencies for
+    # our service. We assume that without them
+    # our service won't start.
+    depends_on:
+      db-migrator:
+        condition: service_completed_successfully
+      database:
+        condition: service_healthy
+    ports:
+      - 8000-8002:8000
+    environment:
+      DB_DSN: postgresql+asyncpg://postgres:postgres@database:5432/todo
+  
+  db-migrator:
+    <<: *app
+    command: [alembic, upgrade, head]
+    ports: []
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: postgres:13.8-bullseye
+    # volume is here to persist data
+    # between runs. By default no data is kept on shutdown.
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    # With environments we control database initialization
+    environment:
+      POSTGRES_DB: todo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    restart: always
+    # Healthcheck constantly cheks whether database is up.
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 2s
+      timeout: 3s
+      retries: 40
+    # Here we have exposed ports to host system.
+    ports:
+      - 5432:5432
+# Named volumes.
+volumes:
+  db-data:
+
