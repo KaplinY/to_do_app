@@ -17,9 +17,9 @@ services:
       database:
         condition: service_healthy
     ports:
-      - 8000-8002:8000
+      - 8000:8000
     environment:
-      DB_DSN: postgresql+asyncpg://postgres:postgres@database:5432/todo
+      DB_DSN: postgresql+asyncpg://todo:todo@database:5432/todo
   
   db-migrator:
     <<: *app
@@ -38,12 +38,12 @@ services:
     # With environments we control database initialization
     environment:
       POSTGRES_DB: todo
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: todo
+      POSTGRES_PASSWORD: todo
     restart: always
     # Healthcheck constantly cheks whether database is up.
     healthcheck:
-      test: pg_isready -U postgres
+      test: pg_isready -U todo
       interval: 2s
       timeout: 3s
       retries: 40
