@@ -53,16 +53,10 @@ async def add_user(item: User, session: AsyncSession = Depends(get_async_session
         )
     new_user = Users(username = item.username, password = hashed_password, email = item.email)
     session.add(new_user)
-    await session.commit()
     await session.flush()
-    try:
-        return DefualtResponseModel(data = 'User added succesfully')
-    except ValidationError:
-        raise HTTPException(
-            status_code=405,
-            detail="User can not be added",
-            headers={"Error":"Try another username or password"}
-        )
+    await session.commit()
+        
+    return DefualtResponseModel(data = 'User added succesfully')
     
 @router.post("/authenticate_user")
 async def user_login(item: User, session: AsyncSession = Depends(get_async_session)):

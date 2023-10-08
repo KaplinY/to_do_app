@@ -16,7 +16,7 @@ class Users(Base):
     username: Mapped[str] = mapped_column(sa.String(100), unique=True)
     password: Mapped[str] = mapped_column(sa.Text)
     email: Mapped[str] = mapped_column(sa.Text, unique=True)
-    share: Mapped[str] = mapped_column(sa.BigInteger())
+    share: Mapped[str] = mapped_column(sa.BigInteger(), nullable=True)
 
 class Todos(Base):
     __tablename__ = "todo"
